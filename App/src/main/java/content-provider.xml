@@ -1,0 +1,1 @@
+<provider android:name="com.hillman.sudokusolver.provider.PuzzlesProvider" android:authorities="com.hillman.sudokusolver.provider.puzzles" android:exported="false" />

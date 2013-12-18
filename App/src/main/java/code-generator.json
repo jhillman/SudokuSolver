@@ -1,0 +1,25 @@
+{
+  "type": "content-provider",
+  "packageName": "com.hillman.sudokusolver",
+  "databaseName": "puzzles",
+  "databaseVersion": 1,
+  "models": [
+    {
+      "name": "Puzzle",
+      "members": [
+        {
+          "name": "number",
+          "type": "int"
+        },
+        {
+          "name": "name",
+          "type": "String"
+        },
+        {
+          "name": "numbers",
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}
