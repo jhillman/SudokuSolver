@@ -44,6 +44,7 @@ public class MainActivity extends Activity {
     private TextView[][] mTextViewGrid;
     private Gson mGson;
     private int mCurrentPuzzleNumber = 1;
+    private boolean mPuzzleChosen;
 
     private native SudokuResult solve(int[] puzzle);
 
@@ -107,6 +108,10 @@ public class MainActivity extends Activity {
         View.OnClickListener cellOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
+                if (mPuzzleChosen) {
+                    return;
+                }
+
                 final int viewI = (int) view.getTag(R.id.key_i);
                 final int viewJ = (int) view.getTag(R.id.key_j);
 
@@ -259,11 +264,13 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK) {
+            mPuzzleChosen = true;
             mCurrentPuzzleNumber = data.getIntExtra(PuzzlesActivity.DATA_PUZZLE_NUMBER, 1);
 
             ((TextView)findViewById(R.id.puzzle_name)).setText(data.getStringExtra(PuzzlesActivity.DATA_PUZZLE_NAME));
-            ((TextView)findViewById(R.id.native_time)).setText("-- milliseconds");
-            ((TextView)findViewById(R.id.java_time)).setText("-- milliseconds");
+            ((TextView)findViewById(R.id.native_time)).setText("");
+            ((TextView)findViewById(R.id.java_time)).setText("");
+            ((TextView)findViewById(R.id.technique)).setText("");
 
             mPuzzle = mGson.fromJson(data.getStringExtra(PuzzlesActivity.DATA_PUZZLE_NUMBERS), int[].class);
 
@@ -363,9 +370,7 @@ public class MainActivity extends Activity {
 
             ((TextView)findViewById(R.id.native_time)).setText(time + " milliseconds");
 
-            if (nativeResult.solutionFound()) {
-                setSolution(nativeResult);
-            }
+            setSolution(nativeResult);
         }
     }
 
@@ -392,23 +397,23 @@ public class MainActivity extends Activity {
 
             ((TextView)findViewById(R.id.java_time)).setText(time + " milliseconds");
 
-            if (javaResult.solutionFound()) {
-                setSolution(javaResult);
-            }
+            setSolution(javaResult);
         }
     }
 
     private void setSolution(SudokuResult sudokuResult) {
-        int[] solution = sudokuResult.getSolution();
+        if (sudokuResult.solutionFound()) {
+            int[] solution = sudokuResult.getSolution();
 
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
-                TextView textview = mTextViewGrid[i][j];
-                int number = solution[i * GRID_SIZE + j];
+            for (int i = 0; i < GRID_SIZE; i++) {
+                for (int j = 0; j < GRID_SIZE; j++) {
+                    TextView textview = mTextViewGrid[i][j];
+                    int number = solution[i * GRID_SIZE + j];
 
-                if (textview.getText().equals("?")) {
-                    textview.setText(Integer.toString(solution[i * GRID_SIZE + j]));
-                    textview.setTextColor(number == 0 ? mGray : mBlack);
+                    if (textview.getText().equals("?")) {
+                        textview.setText(Integer.toString(solution[i * GRID_SIZE + j]));
+                        textview.setTextColor(number == 0 ? mGray : mBlack);
+                    }
                 }
             }
         }

@@ -59,15 +59,17 @@ jobject Java_com_hillman_sudokusolver_activity_MainActivity_solve(JNIEnv * env, 
 
     solutionTechnique = (*env)->GetStaticObjectField(env, solutionTechniqueEnum, solutionTechniqueField);
 
-    solution = (*env)->NewIntArray(env, 81);
+    if (solutionFound) {
+        solution = (*env)->NewIntArray(env, 81);
 
-    for (i = 0; i < 9; i++) {
-        for (j = 0; j < 9; j++) {
-            flatSolution[i * 9 + j] = puzzle[i][j];
+        for (i = 0; i < 9; i++) {
+            for (j = 0; j < 9; j++) {
+                flatSolution[i * 9 + j] = puzzle[i][j];
+            }
         }
-    }
 
-    (*env)->SetIntArrayRegion(env, solution, 0, 81, flatSolution);
+        (*env)->SetIntArrayRegion(env, solution, 0, 81, flatSolution);
+    }
 
     resultClass = (*env)->FindClass(env, "com/hillman/sudokusolver/SudokuResult");
     resultConstructor = (*env)->GetMethodID(env, resultClass, "<init>", "(ZLcom/hillman/sudokusolver/SudokuResult$SolutionTechnique;[I)V");

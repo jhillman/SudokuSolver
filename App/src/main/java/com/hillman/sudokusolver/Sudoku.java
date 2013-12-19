@@ -332,11 +332,11 @@ public class Sudoku {
 
         if (!sudokuSolved(solution)) {
             solutionTechnique = SudokuResult.SolutionTechnique.NONE;
-        }
-
-        for (row = 0; row < 9; row++) {
-            for (column = 0; column < 9; column++) {
-                puzzle[row][column] = solution[row][column].get(0);
+        } else {
+            for (row = 0; row < 9; row++) {
+                for (column = 0; column < 9; column++) {
+                    puzzle[row][column] = solution[row][column].get(0);
+                }
             }
         }
 
