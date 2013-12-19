@@ -7,13 +7,22 @@
 
 #include "sudoku.h"
 
-jintArray Java_com_hillman_sudokusolver_activity_MainActivity_solve(JNIEnv * env, jobject this, jintArray flatPuzzle)
+jobject Java_com_hillman_sudokusolver_activity_MainActivity_solve(JNIEnv * env, jobject this, jintArray flatPuzzle)
 {
     int i, j;
     int puzzle[9][9];
     jint flatSolution[81];
     jintArray solution;
     jint* puzzleValues = (*env)->GetIntArrayElements(env, flatPuzzle, NULL);
+    jobject resultClass;
+    jmethodID resultConstructor;
+    jobject result;
+    int solutionTechniqueInt;
+    jboolean solutionFound = JNI_TRUE;
+    jobject solutionTechniqueEnum;
+    jstring solutionTechniqueFieldName;
+    jfieldID solutionTechniqueField;
+    jobject solutionTechnique;
 
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 9; j++) {
@@ -21,7 +30,34 @@ jintArray Java_com_hillman_sudokusolver_activity_MainActivity_solve(JNIEnv * env
         }
     }
 
-    solve_sudoku(puzzle);
+    solutionTechniqueInt = solve_sudoku(puzzle);
+
+    solutionTechniqueEnum = (*env)->FindClass(env, "com/hillman/sudokusolver/SudokuResult$SolutionTechnique");
+
+    if (solutionTechniqueEnum == NULL) {
+        printf("Enum not found");
+    }
+
+    switch (solutionTechniqueInt) {
+        case TECHNIQUE_TRIM:
+            solutionTechniqueFieldName = "TRIM";
+            break;
+        case TECHNIQUE_SINGLETON:
+            solutionTechniqueFieldName = "SINGLETON";
+            break;
+        case TECHNIQUE_GUESS:
+            solutionTechniqueFieldName = "GUESS";
+            break;
+        case TECHNIQUE_NONE:
+            solutionTechniqueFieldName = "NONE";
+            solutionFound = JNI_FALSE;
+            break;
+    }
+
+    solutionTechniqueField = (*env)->GetStaticFieldID(env,
+        solutionTechniqueEnum, solutionTechniqueFieldName, "Lcom/hillman/sudokusolver/SudokuResult$SolutionTechnique;");
+
+    solutionTechnique = (*env)->GetStaticObjectField(env, solutionTechniqueEnum, solutionTechniqueField);
 
     solution = (*env)->NewIntArray(env, 81);
 
@@ -33,5 +69,10 @@ jintArray Java_com_hillman_sudokusolver_activity_MainActivity_solve(JNIEnv * env
 
     (*env)->SetIntArrayRegion(env, solution, 0, 81, flatSolution);
 
-    return solution;
+    resultClass = (*env)->FindClass(env, "com/hillman/sudokusolver/SudokuResult");
+    resultConstructor = (*env)->GetMethodID(env, resultClass, "<init>", "(ZLcom/hillman/sudokusolver/SudokuResult$SolutionTechnique;[I)V");
+
+    result = (*env)->NewObject(env, resultClass, resultConstructor, solutionFound, solutionTechnique, solution);
+
+    return result;
 }

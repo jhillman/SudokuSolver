@@ -228,7 +228,7 @@ public class Sudoku {
         return solved;
     }
 
-    private static void guessSudoku(List<Integer>[][] solution) {
+    private static int guessSudoku(List<Integer>[][] solution, int guessCount) {
         int guessRow;
         int guessColumn = 0;
         int row;
@@ -237,6 +237,7 @@ public class Sudoku {
         int guess;
         List<Integer>[][] guessedSolution = new ArrayList[9][9];
         boolean solved = false;
+        int guessTotal = guessCount + 1;
 
         for (guessRow = 0; guesses == null && guessRow < 9; guessRow++) {
             for (guessColumn = 0; guesses == null && guessColumn < 9; guessColumn++) {
@@ -268,7 +269,7 @@ public class Sudoku {
                     solved = sudokuSolved(guessedSolution);
 
                     if (!solved) {
-                        guessSudoku(guessedSolution);
+                        guessTotal += guessSudoku(guessedSolution, guessCount + 1);
                         solved = sudokuSolved(guessedSolution);
                     }
                 }
@@ -281,6 +282,10 @@ public class Sudoku {
                     }
                 }
 
+                if (guessTotal > 1000) {
+                    break;
+                }
+
                 if (guesses.isEmpty()) {
                     break;
                 }
@@ -288,13 +293,16 @@ public class Sudoku {
                 guess = guesses.remove(0);
             }
         }
+
+        return guessTotal;
     }
 
-    private static void solveSudoku(int[][] puzzle) {
+    private static SudokuResult.SolutionTechnique solveSudoku(int[][] puzzle) {
         List<Integer>[][] solution = new ArrayList[9][9];
         int row;
         int column;
         int number;
+        SudokuResult.SolutionTechnique solutionTechnique = SudokuResult.SolutionTechnique.TRIM;
 
         for (row = 0; row < 9; row++) {
             for (column = 0; column < 9; column++) {
@@ -314,10 +322,16 @@ public class Sudoku {
 
         if (!sudokuSolved(solution)) {
             singletonSudoku(solution);
+            solutionTechnique = SudokuResult.SolutionTechnique.SINGLETON;
+        }
 
-            if (!sudokuSolved(solution)) {
-                guessSudoku(solution);
-            }
+        if (!sudokuSolved(solution)) {
+            guessSudoku(solution, 0);
+            solutionTechnique = SudokuResult.SolutionTechnique.GUESS;
+        }
+
+        if (!sudokuSolved(solution)) {
+            solutionTechnique = SudokuResult.SolutionTechnique.NONE;
         }
 
         for (row = 0; row < 9; row++) {
@@ -325,9 +339,11 @@ public class Sudoku {
                 puzzle[row][column] = solution[row][column].get(0);
             }
         }
+
+        return solutionTechnique;
     }
 
-    public static int[] solve(int[] flatPuzzle) {
+    public static SudokuResult solve(int[] flatPuzzle) {
         int[][] puzzle = new int[9][9];
 
         for (int i = 0; i < 9; i++) {
@@ -336,7 +352,7 @@ public class Sudoku {
             }
         }
 
-        solveSudoku(puzzle);
+        SudokuResult.SolutionTechnique solutionTechnique = solveSudoku(puzzle);
 
         int[] solution = new int[81];
 
@@ -346,6 +362,6 @@ public class Sudoku {
             }
         }
 
-        return solution;
+        return new SudokuResult(solutionTechnique != SudokuResult.SolutionTechnique.NONE, solutionTechnique, solution);
     }
 }

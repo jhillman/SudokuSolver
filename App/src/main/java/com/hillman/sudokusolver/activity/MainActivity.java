@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.hillman.sudokusolver.R;
 import com.hillman.sudokusolver.Sudoku;
+import com.hillman.sudokusolver.SudokuResult;
 import com.hillman.sudokusolver.model.Puzzle;
 import com.hillman.sudokusolver.provider.PuzzlesProvider;
 
@@ -44,7 +45,7 @@ public class MainActivity extends Activity {
     private Gson mGson;
     private int mCurrentPuzzleNumber = 1;
 
-    private native int[] solve(int[] puzzle);
+    private native SudokuResult solve(int[] puzzle);
 
     static {
         System.loadLibrary("sudoku");
@@ -339,7 +340,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    private class NativeSolutionTask extends AsyncTask<int[], Void, int[]> {
+    private class NativeSolutionTask extends AsyncTask<int[], Void, SudokuResult> {
         private long mStart;
 
         @Override
@@ -350,23 +351,25 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        protected int[] doInBackground(int[]... integers) {
-            return solve(mPuzzle);
+        protected SudokuResult doInBackground(int[]... puzzles) {
+            return solve(puzzles[0]);
         }
 
         @Override
-        protected void onPostExecute(int[] nativeSolution) {
-            super.onPostExecute(nativeSolution);
+        protected void onPostExecute(SudokuResult nativeResult) {
+            super.onPostExecute(nativeResult);
 
             long time = System.currentTimeMillis() - mStart;
 
             ((TextView)findViewById(R.id.native_time)).setText(time + " milliseconds");
 
-            setSolution(nativeSolution);
+            if (nativeResult.solutionFound()) {
+                setSolution(nativeResult);
+            }
         }
     }
 
-    private class JavaSolutionTask extends AsyncTask<int[], Void, int[]> {
+    private class JavaSolutionTask extends AsyncTask<int[], Void, SudokuResult> {
         private long mStart;
 
         @Override
@@ -377,23 +380,27 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        protected int[] doInBackground(int[]... integers) {
-            return Sudoku.solve(mPuzzle);
+        protected SudokuResult doInBackground(int[]... puzzles) {
+            return Sudoku.solve(puzzles[0]);
         }
 
         @Override
-        protected void onPostExecute(int[] javaSolution) {
-            super.onPostExecute(javaSolution);
+        protected void onPostExecute(SudokuResult javaResult) {
+            super.onPostExecute(javaResult);
 
             long time = System.currentTimeMillis() - mStart;
 
             ((TextView)findViewById(R.id.java_time)).setText(time + " milliseconds");
 
-            setSolution(javaSolution);
+            if (javaResult.solutionFound()) {
+                setSolution(javaResult);
+            }
         }
     }
 
-    private void setSolution(int[] solution) {
+    private void setSolution(SudokuResult sudokuResult) {
+        int[] solution = sudokuResult.getSolution();
+
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
                 TextView textview = mTextViewGrid[i][j];
@@ -405,5 +412,7 @@ public class MainActivity extends Activity {
                 }
             }
         }
+
+        ((TextView)findViewById(R.id.technique)).setText(sudokuResult.getSolutionTechnique().toString());
     }
 }

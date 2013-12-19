@@ -1,6 +1,10 @@
 #include "list.h"
+#include <stdbool.h>
 
-static int guessCalls = 0;
+#define TECHNIQUE_TRIM 0
+#define TECHNIQUE_SINGLETON 1
+#define TECHNIQUE_GUESS 2
+#define TECHNIQUE_NONE 3
 
 void print_sudoku(struct list *solution[9][9]) {
     int row;
@@ -271,7 +275,7 @@ int sudoku_solved(struct list *solution[9][9]) {
     return solved;
 }
 
-void guess_sudoku(struct list *solution[9][9]) {
+int guess_sudoku(struct list *solution[9][9], int guessCount) {
     int guessRow;
     int guessColumn = 0;
     int row;
@@ -280,6 +284,7 @@ void guess_sudoku(struct list *solution[9][9]) {
     struct node *guess;
     struct list *guessedSolution[9][9];
     int solved = 0;
+    int guessTotal = guessCount + 1;
 
     for (guessRow = 0; !guesses && guessRow < 9; guessRow++) {
         for (guessColumn = 0; !guesses && guessColumn < 9; guessColumn++) {
@@ -311,7 +316,7 @@ void guess_sudoku(struct list *solution[9][9]) {
                 solved = sudoku_solved(guessedSolution);
 
                 if (!solved) {
-                    guess_sudoku(guessedSolution);
+                    guessTotal += guess_sudoku(guessedSolution, guessCount + 1);
                     solved = sudoku_solved(guessedSolution);
                 }
             }
@@ -327,18 +332,26 @@ void guess_sudoku(struct list *solution[9][9]) {
                 }
             }
 
+            if (guessTotal > 1000) {
+                break;
+            }
+
             guess = guess->next;
         }
 
         list_free(guesses);
     }
+
+    return guessTotal;
 }
 
-void solve_sudoku(int puzzle[9][9]) {
+int solve_sudoku(int puzzle[9][9]) {
     struct list *solution[9][9];
     int row;
     int column;
     int number;
+    int solutionTechnique = TECHNIQUE_TRIM;
+    int guesses;
 
     for (row = 0; row < 9; row++) {
         for (column = 0; column < 9; column++) {
@@ -358,10 +371,16 @@ void solve_sudoku(int puzzle[9][9]) {
 
     if (!sudoku_solved(solution)) {
         singleton_sudoku(solution);
+        solutionTechnique = TECHNIQUE_SINGLETON;
+    }
 
-        if (!sudoku_solved(solution)) {
-            guess_sudoku(solution);
-        }
+    if (!sudoku_solved(solution)) {
+        guesses = guess_sudoku(solution, 0);
+        solutionTechnique = TECHNIQUE_GUESS;
+    }
+
+    if (!sudoku_solved(solution)) {
+        solutionTechnique = TECHNIQUE_NONE;
     }
 
     for (row = 0; row < 9; row++) {
@@ -370,4 +389,6 @@ void solve_sudoku(int puzzle[9][9]) {
             list_free(solution[row][column]);
         }
     }
+
+    return solutionTechnique;
 }
