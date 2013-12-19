@@ -1,3 +1,4 @@
 <resources>
     <dimen name="number_text_size">22sp</dimen>
+    <dimen name="label_width">135dp</dimen>
 </resources>

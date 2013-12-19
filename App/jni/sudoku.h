@@ -1,10 +1,10 @@
 #include "list.h"
 #include <stdbool.h>
 
-#define TECHNIQUE_TRIM 0
-#define TECHNIQUE_SINGLETON 1
-#define TECHNIQUE_GUESS 2
-#define TECHNIQUE_NONE 3
+#define STRATEGY_TRIM 0
+#define STRATEGY_SINGLETON 1
+#define STRATEGY_GUESS 2
+#define STRATEGY_NONE 3
 
 void print_sudoku(struct list *solution[9][9]) {
     int row;
@@ -350,7 +350,7 @@ int solve_sudoku(int puzzle[9][9]) {
     int row;
     int column;
     int number;
-    int solutionTechnique = TECHNIQUE_TRIM;
+    int solutionStrategy = STRATEGY_TRIM;
     int guesses;
 
     for (row = 0; row < 9; row++) {
@@ -371,16 +371,16 @@ int solve_sudoku(int puzzle[9][9]) {
 
     if (!sudoku_solved(solution)) {
         singleton_sudoku(solution);
-        solutionTechnique = TECHNIQUE_SINGLETON;
+        solutionStrategy = STRATEGY_SINGLETON;
     }
 
     if (!sudoku_solved(solution)) {
         guesses = guess_sudoku(solution, 0);
-        solutionTechnique = TECHNIQUE_GUESS;
+        solutionStrategy = STRATEGY_GUESS;
     }
 
     if (!sudoku_solved(solution)) {
-        solutionTechnique = TECHNIQUE_NONE;
+        solutionStrategy = STRATEGY_NONE;
     }
 
     for (row = 0; row < 9; row++) {
@@ -390,5 +390,5 @@ int solve_sudoku(int puzzle[9][9]) {
         }
     }
 
-    return solutionTechnique;
+    return solutionStrategy;
 }

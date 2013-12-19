@@ -17,12 +17,12 @@ jobject Java_com_hillman_sudokusolver_activity_MainActivity_solve(JNIEnv * env, 
     jobject resultClass;
     jmethodID resultConstructor;
     jobject result;
-    int solutionTechniqueInt;
+    int solutionStrategyInt;
     jboolean solutionFound = JNI_TRUE;
-    jobject solutionTechniqueEnum;
-    jstring solutionTechniqueFieldName;
-    jfieldID solutionTechniqueField;
-    jobject solutionTechnique;
+    jobject solutionStrategyEnum;
+    jstring solutionStrategyFieldName;
+    jfieldID solutionStrategyField;
+    jobject solutionStrategy;
 
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 9; j++) {
@@ -30,38 +30,38 @@ jobject Java_com_hillman_sudokusolver_activity_MainActivity_solve(JNIEnv * env, 
         }
     }
 
-    solutionTechniqueInt = solve_sudoku(puzzle);
+    solutionStrategyInt = solve_sudoku(puzzle);
 
-    solutionTechniqueEnum = (*env)->FindClass(env, "com/hillman/sudokusolver/SudokuResult$SolutionTechnique");
+    solutionStrategyEnum = (*env)->FindClass(env, "com/hillman/sudokusolver/SudokuResult$SolutionStrategy");
 
-    if (solutionTechniqueEnum == NULL) {
+    if (solutionStrategyEnum == NULL) {
         printf("Enum not found");
     }
 
-    switch (solutionTechniqueInt) {
-        case TECHNIQUE_TRIM:
-            solutionTechniqueFieldName = "TRIM";
+    switch (solutionStrategyInt) {
+        case STRATEGY_TRIM:
+            solutionStrategyFieldName = "TRIM";
             break;
-        case TECHNIQUE_SINGLETON:
-            solutionTechniqueFieldName = "SINGLETON";
+        case STRATEGY_SINGLETON:
+            solutionStrategyFieldName = "SINGLETON";
             break;
-        case TECHNIQUE_GUESS:
-            solutionTechniqueFieldName = "GUESS";
+        case STRATEGY_GUESS:
+            solutionStrategyFieldName = "GUESS";
             break;
-        case TECHNIQUE_NONE:
-            solutionTechniqueFieldName = "NONE";
+        case STRATEGY_NONE:
+            solutionStrategyFieldName = "NONE";
             solutionFound = JNI_FALSE;
             break;
     }
 
-    solutionTechniqueField = (*env)->GetStaticFieldID(env,
-        solutionTechniqueEnum, solutionTechniqueFieldName, "Lcom/hillman/sudokusolver/SudokuResult$SolutionTechnique;");
+    solutionStrategyField = (*env)->GetStaticFieldID(env,
+        solutionStrategyEnum, solutionStrategyFieldName, "Lcom/hillman/sudokusolver/SudokuResult$SolutionStrategy;");
 
-    solutionTechnique = (*env)->GetStaticObjectField(env, solutionTechniqueEnum, solutionTechniqueField);
+    solutionStrategy = (*env)->GetStaticObjectField(env, solutionStrategyEnum, solutionStrategyField);
+
+    solution = (*env)->NewIntArray(env, 81);
 
     if (solutionFound) {
-        solution = (*env)->NewIntArray(env, 81);
-
         for (i = 0; i < 9; i++) {
             for (j = 0; j < 9; j++) {
                 flatSolution[i * 9 + j] = puzzle[i][j];
@@ -72,9 +72,9 @@ jobject Java_com_hillman_sudokusolver_activity_MainActivity_solve(JNIEnv * env, 
     }
 
     resultClass = (*env)->FindClass(env, "com/hillman/sudokusolver/SudokuResult");
-    resultConstructor = (*env)->GetMethodID(env, resultClass, "<init>", "(ZLcom/hillman/sudokusolver/SudokuResult$SolutionTechnique;[I)V");
+    resultConstructor = (*env)->GetMethodID(env, resultClass, "<init>", "(ZLcom/hillman/sudokusolver/SudokuResult$SolutionStrategy;[I)V");
 
-    result = (*env)->NewObject(env, resultClass, resultConstructor, solutionFound, solutionTechnique, solution);
+    result = (*env)->NewObject(env, resultClass, resultConstructor, solutionFound, solutionStrategy, solution);
 
     return result;
 }

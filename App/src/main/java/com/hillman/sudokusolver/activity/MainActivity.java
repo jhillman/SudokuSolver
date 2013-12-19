@@ -80,6 +80,29 @@ public class MainActivity extends Activity {
         mBlack = getResources().getColor(android.R.color.black);
         mGray = getResources().getColor(android.R.color.darker_gray);
 
+        findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPuzzleChosen = false;
+
+                ((TextView)findViewById(R.id.puzzle_name)).setText("");
+                ((TextView)findViewById(R.id.native_time)).setText("");
+                ((TextView)findViewById(R.id.java_time)).setText("");
+                ((TextView)findViewById(R.id.strategy)).setText("");
+
+                for (int i = 0; i < GRID_SIZE; i++) {
+                    for (int j = 0; j < GRID_SIZE; j++) {
+                        TextView textView = mTextViewGrid[i][j];
+                        setPuzzleValue(i, j, 0);
+
+                        textView.setText("?");
+                        textView.setTextColor(mGray);
+                        textView.setTypeface(null, Typeface.NORMAL);
+                    }
+                }
+            }
+        });
+
         findViewById(R.id.puzzles).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,8 +116,8 @@ public class MainActivity extends Activity {
         findViewById(R.id.solve).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((TextView)findViewById(R.id.native_time)).setText("-- milliseconds");
-                ((TextView)findViewById(R.id.java_time)).setText("-- milliseconds");
+                ((TextView)findViewById(R.id.native_time)).setText("");
+                ((TextView)findViewById(R.id.java_time)).setText("");
 
                 new NativeSolutionTask().execute(mPuzzle);
                 new JavaSolutionTask().execute(mPuzzle);
@@ -270,7 +293,7 @@ public class MainActivity extends Activity {
             ((TextView)findViewById(R.id.puzzle_name)).setText(data.getStringExtra(PuzzlesActivity.DATA_PUZZLE_NAME));
             ((TextView)findViewById(R.id.native_time)).setText("");
             ((TextView)findViewById(R.id.java_time)).setText("");
-            ((TextView)findViewById(R.id.technique)).setText("");
+            ((TextView)findViewById(R.id.strategy)).setText("");
 
             mPuzzle = mGson.fromJson(data.getStringExtra(PuzzlesActivity.DATA_PUZZLE_NUMBERS), int[].class);
 
@@ -418,6 +441,6 @@ public class MainActivity extends Activity {
             }
         }
 
-        ((TextView)findViewById(R.id.technique)).setText(sudokuResult.getSolutionTechnique().toString());
+        ((TextView)findViewById(R.id.strategy)).setText(sudokuResult.getSolutionStrategy().toString());
     }
 }

@@ -4,7 +4,7 @@ package com.hillman.sudokusolver;
  * Created by jeff on 12/19/13.
  */
 public class SudokuResult {
-    public enum SolutionTechnique {
+    public enum SolutionStrategy {
         TRIM("Trim"),
         SINGLETON("Singleton"),
         GUESS("Guess"),
@@ -12,7 +12,7 @@ public class SudokuResult {
 
         private String mName;
 
-        private SolutionTechnique(String name) {
+        private SolutionStrategy(String name) {
             mName = name;
         }
 
@@ -23,12 +23,12 @@ public class SudokuResult {
     }
 
     private boolean mSolutionFound;
-    private SolutionTechnique mSolutionTechnique = SolutionTechnique.TRIM;
+    private SolutionStrategy mSolutionStrategy = SolutionStrategy.TRIM;
     private int[] mSolution;
 
-    public SudokuResult(boolean solutionFound, SolutionTechnique solutionTechnique, int[] solution) {
+    public SudokuResult(boolean solutionFound, SolutionStrategy solutionStrategy, int[] solution) {
         mSolutionFound = solutionFound;
-        mSolutionTechnique = solutionTechnique;
+        mSolutionStrategy = solutionStrategy;
         mSolution = solution;
     }
 
@@ -36,8 +36,8 @@ public class SudokuResult {
         return mSolutionFound;
     }
 
-    public SolutionTechnique getSolutionTechnique() {
-        return mSolutionTechnique;
+    public SolutionStrategy getSolutionStrategy() {
+        return mSolutionStrategy;
     }
 
     public int[] getSolution() {

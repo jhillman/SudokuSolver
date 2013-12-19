@@ -297,12 +297,12 @@ public class Sudoku {
         return guessTotal;
     }
 
-    private static SudokuResult.SolutionTechnique solveSudoku(int[][] puzzle) {
+    private static SudokuResult.SolutionStrategy solveSudoku(int[][] puzzle) {
         List<Integer>[][] solution = new ArrayList[9][9];
         int row;
         int column;
         int number;
-        SudokuResult.SolutionTechnique solutionTechnique = SudokuResult.SolutionTechnique.TRIM;
+        SudokuResult.SolutionStrategy solutionStrategy = SudokuResult.SolutionStrategy.TRIM;
 
         for (row = 0; row < 9; row++) {
             for (column = 0; column < 9; column++) {
@@ -322,16 +322,16 @@ public class Sudoku {
 
         if (!sudokuSolved(solution)) {
             singletonSudoku(solution);
-            solutionTechnique = SudokuResult.SolutionTechnique.SINGLETON;
+            solutionStrategy = SudokuResult.SolutionStrategy.SINGLETON;
         }
 
         if (!sudokuSolved(solution)) {
             guessSudoku(solution, 0);
-            solutionTechnique = SudokuResult.SolutionTechnique.GUESS;
+            solutionStrategy = SudokuResult.SolutionStrategy.GUESS;
         }
 
         if (!sudokuSolved(solution)) {
-            solutionTechnique = SudokuResult.SolutionTechnique.NONE;
+            solutionStrategy = SudokuResult.SolutionStrategy.NONE;
         } else {
             for (row = 0; row < 9; row++) {
                 for (column = 0; column < 9; column++) {
@@ -340,7 +340,7 @@ public class Sudoku {
             }
         }
 
-        return solutionTechnique;
+        return solutionStrategy;
     }
 
     public static SudokuResult solve(int[] flatPuzzle) {
@@ -352,7 +352,7 @@ public class Sudoku {
             }
         }
 
-        SudokuResult.SolutionTechnique solutionTechnique = solveSudoku(puzzle);
+        SudokuResult.SolutionStrategy solutionStrategy = solveSudoku(puzzle);
 
         int[] solution = new int[81];
 
@@ -362,6 +362,6 @@ public class Sudoku {
             }
         }
 
-        return new SudokuResult(solutionTechnique != SudokuResult.SolutionTechnique.NONE, solutionTechnique, solution);
+        return new SudokuResult(solutionStrategy != SudokuResult.SolutionStrategy.NONE, solutionStrategy, solution);
     }
 }
