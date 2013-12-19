@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ListView;
 
 import com.hillman.sudokusolver.R;
@@ -51,6 +52,7 @@ public class PuzzlesFragment extends ListFragment implements LoaderManager.Loade
         Puzzle puzzle = new Puzzle(cursor);
 
         Intent data = new Intent();
+        data.putExtra(PuzzlesActivity.DATA_PUZZLE_NUMBER, puzzle.getNumber());
         data.putExtra(PuzzlesActivity.DATA_PUZZLE_NAME, puzzle.getName());
         data.putExtra(PuzzlesActivity.DATA_PUZZLE_NUMBERS, puzzle.getNumbers());
 
@@ -66,6 +68,10 @@ public class PuzzlesFragment extends ListFragment implements LoaderManager.Loade
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         mAdapter.swapCursor(cursor);
+
+        final int position = getActivity().getIntent().getIntExtra(PuzzlesActivity.DATA_PUZZLE_NUMBER, 0);
+
+        getListView().smoothScrollToPosition(position);
     }
 
     @Override

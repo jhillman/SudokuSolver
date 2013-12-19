@@ -1,7 +1,5 @@
 package com.hillman.sudokusolver;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,13 +15,11 @@ public class Sudoku {
         int trimColumn;
         int zoneRow = 0;
         int zoneColumn = 0;
-        int trimmed;
+        boolean trimmed;
         int totalTrimmed = 0;
 
-        Log.d("SudokuSolver", String.format("Trying trim"));
-
         do {
-            trimmed = 0;
+            trimmed = false;
 
             for (row = 0; row < 9; row++) {
                 if (row % 3 == 0) {
@@ -41,30 +37,27 @@ public class Sudoku {
                         /* row */
                         for (trimRow = 0; trimRow < 9; trimRow++) {
                             if (trimRow != row) {
-                                int index = solution[trimRow][column].indexOf(number);
-                                if (index > -1) {
-                                    trimmed += solution[trimRow][column].remove(index);
+                                if (solution[trimRow][column].contains(number)) {
+                                    trimmed = trimmed || solution[trimRow][column].remove(new Integer(number));
                                 }
                             }
                         }
 
-                    /* column */
+                        /* column */
                         for (trimColumn = 0; trimColumn < 9; trimColumn++) {
                             if (trimColumn != column) {
-                                int index = solution[row][trimColumn].indexOf(number);
-                                if (index > -1) {
-                                    trimmed += solution[row][trimColumn].remove(index);
+                                if (solution[row][trimColumn].contains(number)) {
+                                    trimmed = trimmed || solution[row][trimColumn].remove(new Integer(number));
                                 }
                             }
                         }
 
-                    /* zone */
+                        /* zone */
                         for (trimRow = zoneRow; trimRow < zoneRow + 3; trimRow++) {
                             for (trimColumn = zoneColumn; trimColumn < zoneColumn + 3; trimColumn++) {
                                 if (trimRow != row && trimColumn != column) {
-                                    int index = solution[trimRow][trimColumn].indexOf(number);
-                                    if (index > 0) {
-                                        trimmed += solution[trimRow][trimColumn].remove(index);
+                                    if (solution[trimRow][trimColumn].contains(number)) {
+                                        trimmed = trimmed || solution[trimRow][trimColumn].remove(new Integer(number));
                                     }
                                 }
                             }
@@ -73,10 +66,8 @@ public class Sudoku {
                 }
             }
 
-            totalTrimmed += trimmed;
-        } while (trimmed != 0);
-
-        Log.d("SudokuSolver", "Trimmed: " + totalTrimmed);
+            totalTrimmed += trimmed ? 1 : 0;
+        } while (trimmed);
 
         return totalTrimmed;
     }
@@ -150,8 +141,6 @@ public class Sudoku {
         int singletons;
         int totalSingletons = 0;
 
-        Log.d("SudokuSolver", String.format("Trying singleton"));
-
         for (rowColumnZone = 0; rowColumnZone < 9; rowColumnZone++) {
             for (number = 0; number <= 9; number++) {
                 rowFrequencies[rowColumnZone][number] = new ArrayList<>();
@@ -164,7 +153,7 @@ public class Sudoku {
             singletons = 0;
             sudokuStatistics(solution, rowFrequencies, columnFrequencies, zoneFrequencies);
 
-        /* rows */
+            /* rows */
             for (row = 0; row < 9; row++) {
                 for (number = 1; number <= 9; number++) {
                     if (rowFrequencies[row][number].size() == 1) {
@@ -178,7 +167,7 @@ public class Sudoku {
                 }
             }
 
-        /* columns */
+            /* columns */
             for (column = 0; column < 9; column++) {
                 for (number = 1; number <= 9; number++) {
                     if (columnFrequencies[column][number].size() == 1) {
@@ -192,7 +181,7 @@ public class Sudoku {
                 }
             }
 
-        /* zones */
+            /* zones */
             for (zone = 0; zone < 9; zone++) {
                 for (number = 1; number <= 9; number++) {
                     if (zoneFrequencies[zone][number].size() == 1) {
@@ -263,8 +252,6 @@ public class Sudoku {
             guess = guesses.remove(0);
 
             while (guess > 0 && !solved) {
-                Log.d("SudokuSolver", String.format("Java guess: %d", guess));
-
                 for (row = 0; row < 9; row++) {
                     for (column = 0; column < 9; column++) {
                         guessedSolution[row][column] = new ArrayList<>(solution[row][column]);
@@ -326,14 +313,10 @@ public class Sudoku {
         trimSudoku(solution);
 
         if (!sudokuSolved(solution)) {
-            Log.d("SudokuSolver", "Trim didn't work");
             singletonSudoku(solution);
 
             if (!sudokuSolved(solution)) {
-                Log.d("SudokuSolver", "Singleton didn't work");
                 guessSudoku(solution);
-            } else {
-                Log.d("SudokuSolver", "here");
             }
         }
 

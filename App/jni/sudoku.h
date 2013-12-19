@@ -60,8 +60,6 @@ int trim_sudoku(struct list *solution[9][9]) {
     int trimmed;
     int totalTrimmed = 0;
 
-    printf("Trying trim");
-
     do {
         trimmed = 0;
 
@@ -112,8 +110,6 @@ int trim_sudoku(struct list *solution[9][9]) {
 
         totalTrimmed += trimmed;
     } while (trimmed);
-
-    printf("Trimmed: %d", totalTrimmed);
 
     return totalTrimmed;
 }
@@ -187,8 +183,6 @@ int singleton_sudoku(struct list *solution[9][9]) {
     long long rowColumn;
     int singletons;
     int totalSingletons = 0;
-
-    printf("Trying singleton");
 
     for (rowColumnZone = 0; rowColumnZone < 9; rowColumnZone++) {
         for (number = 0; number <= 9; number++) {
@@ -301,7 +295,6 @@ void guess_sudoku(struct list *solution[9][9]) {
         guess = guesses->first;
 
         while (guess && !solved) {
-            printf("Native guess: %lld", guess->value);
             for (row = 0; row < 9; row++) {
                 for (column = 0; column < 9; column++) {
                     guessedSolution[row][column] = list_copy(solution[row][column]);
@@ -364,11 +357,9 @@ void solve_sudoku(int puzzle[9][9]) {
     trim_sudoku(solution);
 
     if (!sudoku_solved(solution)) {
-        printf("Trim didn't work");
         singleton_sudoku(solution);
 
         if (!sudoku_solved(solution)) {
-            printf("Singleton didn't work");
             guess_sudoku(solution);
         }
     }

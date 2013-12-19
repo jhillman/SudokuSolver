@@ -2,7 +2,7 @@
 #include <string.h>
 #include <android/log.h>
 
-#define TAG "SudokuSolver"
+#define TAG "SudokuSolverNative"
 #define printf(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__);
 
 #include "sudoku.h"

@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
     private int[] mPuzzle;
     private TextView[][] mTextViewGrid;
     private Gson mGson;
+    private int mCurrentPuzzleNumber = 1;
 
     private native int[] solve(int[] puzzle);
 
@@ -80,7 +81,10 @@ public class MainActivity extends Activity {
         findViewById(R.id.puzzles).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivityForResult(new Intent(MainActivity.this, PuzzlesActivity.class), REQUEST_CODE_PUZZLES);
+                Intent intent = new Intent(MainActivity.this, PuzzlesActivity.class);
+                intent.putExtra(PuzzlesActivity.DATA_PUZZLE_NUMBER, mCurrentPuzzleNumber);
+
+                startActivityForResult(intent, REQUEST_CODE_PUZZLES);
             }
         });
 
@@ -214,8 +218,8 @@ public class MainActivity extends Activity {
                         cellTextView.setTag(R.id.key_j, (j * 3) + l);
 
                         cellTextView.setBackgroundResource(R.drawable.white_selector);
-                        //cellTextView.setClickable(true);
-                        //cellTextView.setOnClickListener(cellOnClickListener);
+                        cellTextView.setClickable(true);
+                        cellTextView.setOnClickListener(cellOnClickListener);
 
                         rowLayout.addView(cellTextView);
 
@@ -254,6 +258,8 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == Activity.RESULT_OK) {
+            mCurrentPuzzleNumber = data.getIntExtra(PuzzlesActivity.DATA_PUZZLE_NUMBER, 1);
+
             ((TextView)findViewById(R.id.puzzle_name)).setText(data.getStringExtra(PuzzlesActivity.DATA_PUZZLE_NAME));
             ((TextView)findViewById(R.id.native_time)).setText("-- milliseconds");
             ((TextView)findViewById(R.id.java_time)).setText("-- milliseconds");
